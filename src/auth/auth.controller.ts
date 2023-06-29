@@ -11,15 +11,15 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  @ApiBody({ type: CreateUserDto })
-  async login(@Request() req) {
-    return this.authService.login(req.user as UserDocument);
-  }
-
   @Post('register')
   register(@Body() dto: CreateUserDto) {
     return this.authService.register(dto);
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  @ApiBody({ type: CreateUserDto })
+  login(@Request() req) {
+    return this.authService.login(req.user as UserDocument);
   }
 }
