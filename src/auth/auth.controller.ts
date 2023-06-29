@@ -1,21 +1,26 @@
-import { ApiTags } from '@nestjs/swagger';
-import { LoginDto } from './dto/login.dto';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { LocalAuthGuard } from './guards/local.guard';
+import { UserDocument } from '../users/schemas/user.schema';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Post('/register')
-  signUp(@Body() registerDto: RegisterDto): Promise<{ token: string }> {
-    return this.authService.signUp(registerDto);
+  @UseGuards(LocalAuthGuard)
+  @ApiBearerAuth()
+  @Post('login')
+  @ApiBody({ type: CreateUserDto })
+  async login(@Request() req) {
+    return this.authService.login(req.user as UserDocument);
   }
 
-  @Get('/login')
-  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-    return this.authService.login(loginDto);
+  @Post('register')
+  register(@Body() dto: CreateUserDto) {
+    return this.authService.register(dto);
   }
 }

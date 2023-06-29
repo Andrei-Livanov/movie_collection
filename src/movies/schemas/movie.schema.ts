@@ -1,22 +1,18 @@
-import mongoose from 'mongoose';
-import { User } from '../../auth/schemas/user.schema';
+import { Document } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-@Schema({
-  timestamps: true,
-})
+export type MovieDocument = Movie & Document;
+
+@Schema()
 export class Movie {
-  @Prop()
+  @Prop({ required: true })
   title: string;
 
-  @Prop()
+  @Prop({ required: true })
   description: string;
 
-  @Prop()
+  @Prop({ required: true })
   rating: number;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user: User;
 }
 
 export const MovieSchema = SchemaFactory.createForClass(Movie);

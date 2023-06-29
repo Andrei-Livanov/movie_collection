@@ -1,28 +1,32 @@
 import {
-  IsEmpty,
   IsNotEmpty,
   IsNumber,
   IsString,
   Max,
+  MaxLength,
   Min,
+  MinLength,
 } from 'class-validator';
-import { User } from '../../auth/schemas/user.schema';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateMovieDto {
-  @IsNotEmpty()
   @IsString()
-  readonly title: string;
-
   @IsNotEmpty()
+  @MinLength(1)
+  @ApiProperty({ default: 'The Silence of the Lambs' })
+  title: string;
+
   @IsString()
-  readonly description: string;
-
   @IsNotEmpty()
+  @MinLength(5)
+  @MaxLength(500)
+  @ApiProperty({ default: 'thriller, detective, crime, drama, horror' })
+  description: string;
+
   @IsNumber()
+  @IsNotEmpty()
   @Min(1)
   @Max(10)
-  readonly rating: number;
-
-  @IsEmpty({ message: 'You cannot pass user id' })
-  readonly user: User;
+  @ApiProperty({ default: 9 })
+  rating: number;
 }

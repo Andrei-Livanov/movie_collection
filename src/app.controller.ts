@@ -6,7 +6,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @Redirect('/swagger')
+  @Redirect('swagger')
   getHello(): string {
     return this.appService.getHello();
   }

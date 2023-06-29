@@ -1,28 +1,11 @@
-import {
-  IsEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
-import { User } from '../../auth/schemas/user.schema';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateMovieDto } from './create-movie.dto';
+import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
-export class UpdateMovieDto {
-  @IsOptional()
+export class UpdateMovieDto extends PartialType(CreateMovieDto) {
   @IsString()
-  readonly title: string;
-
-  @IsOptional()
-  @IsString()
-  readonly description: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  @Max(10)
-  readonly rating: number;
-
-  @IsEmpty({ message: 'You cannot pass user id' })
-  readonly user: User;
+  @IsNotEmpty()
+  @MinLength(5)
+  @MaxLength(500)
+  description: string;
 }

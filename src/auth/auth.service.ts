@@ -1,53 +1,41 @@
-import { Model } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from './dto/login.dto';
-import { User } from './schemas/user.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { RegisterDto } from './dto/register.dto';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+
+import { UsersService } from '../users/users.service';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name)
-    private userModel: Model<User>,
+    private userService: UsersService,
     private jwtService: JwtService,
   ) {}
 
-  async signUp(registerDto: RegisterDto): Promise<{ token: string }> {
-    const { name, email, password } = registerDto;
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.userService.findByEmail(email);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const { password, ...result } = user;
+      return result;
+    }
 
-    const user = await this.userModel.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    const token = this.jwtService.sign({ id: user._id });
-
-    return { token };
+    return null;
   }
 
-  async login(loginDto: LoginDto): Promise<{ token: string }> {
-    const { email, password } = loginDto;
+  async register(dto: CreateUserDto) {
+    try {
+      const userData = await this.userService.create(dto);
 
-    const user = await this.userModel.findOne({ email });
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      return { token: this.jwtService.sign({ id: userData.id }) };
+    } catch (err) {
+      console.log(err);
+      throw new ForbiddenException('Registration error');
     }
+  }
 
-    const isPasswordMatched = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordMatched) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
-    const token = this.jwtService.sign({ id: user._id });
-
-    return { token };
+  async login(user: UserDocument) {
+    return { token: this.jwtService.sign({ id: user.id }) };
   }
 }
