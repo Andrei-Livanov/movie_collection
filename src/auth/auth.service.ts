@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 
 import { UsersService } from '../users/users.service';
-import { UserDocument } from '../users/schemas/user.schema';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @Injectable()
@@ -35,7 +34,9 @@ export class AuthService {
     }
   }
 
-  async login(user: UserDocument) {
+  async login(dto: CreateUserDto) {
+    const user = await this.userService.findByEmail(dto.email);
+
     return { token: this.jwtService.sign({ id: user.id }) };
   }
 }
