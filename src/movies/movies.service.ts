@@ -23,7 +23,7 @@ export class MoviesService {
   }
 
   async findSortedByRating(): Promise<MovieDocument[]> {
-    return this.movieModel.find().sort('rating').exec();
+    return this.movieModel.find().sort('-rating').exec();
   }
 
   async findById(id: string): Promise<MovieDocument> {
